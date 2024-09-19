@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private void createWebSocketClient() {
         URI uri;
         try {
-            uri = new URI("ws://192.168.147.223:80/");
+//            uri = new URI("ws://192.168.147.223:80/");
+            uri = new URI("ws://esp32camera.local:80/");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
