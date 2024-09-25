@@ -1,5 +1,9 @@
 package com.example.websocketclient;
 
+import static android.system.Os.close;
+
+import static kotlinx.coroutines.CoroutineScopeKt.cancel;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -19,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private WebSocketClient webSocketClient;
     private ImageView imageView;
     private static final String TAG = "MainActivity";
-    private static final long RETRY_DELAY_MS = 3000; // Retry delay in milliseconds
+    private static final long RETRY_DELAY_MS = 1000; // Retry delay in milliseconds
     private boolean isConnected = false; // Flag to track connection status
     private Timer retryTimer; // Timer for managing retry attempts
 
@@ -31,15 +35,39 @@ public class MainActivity extends AppCompatActivity {
         createWebSocketClient();
     }
 
+    private void disconnectWebSocket() {
+        if (webSocketClient != null) {
+            webSocketClient.close(); // Close the WebSocket connection
+            webSocketClient = null; // Nullify to release the reference
+        }
+        if (retryTimer != null) {
+            retryTimer.cancel(); // Stop the reconnection timer
+            retryTimer = null; // Nullify to release the reference
+        }
+        isConnected = false; // Mark as disconnected
+//        Log.d(TAG.getName(), "WebSocket connection closed and resources released.");
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        disconnectWebSocket();
+        super.onDestroy();
+
+    }
+
+
     private void createWebSocketClient() {
         URI uri;
         try {
-//            uri = new URI("ws://192.168.147.223:80/");
-            uri = new URI("ws://esp32camera.local:80/");
+            uri = new URI("ws://192.168.33.223:80/");
+//            uri = new URI("ws://esp32camera.local:80/");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
         }
+
+
 
         webSocketClient = new WebSocketClient(uri) {
             @Override
