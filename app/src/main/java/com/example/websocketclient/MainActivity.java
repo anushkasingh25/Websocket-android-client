@@ -1,9 +1,6 @@
 package com.example.websocketclient;
 
-import static android.system.Os.close;
-
-import static kotlinx.coroutines.CoroutineScopeKt.cancel;
-
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -12,6 +9,12 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Timer;
@@ -26,12 +29,18 @@ public class MainActivity extends AppCompatActivity {
     private static final long RETRY_DELAY_MS = 1000; // Retry delay in milliseconds
     private boolean isConnected = false; // Flag to track connection status
     private Timer retryTimer; // Timer for managing retry attempts
+    private static final String FILE_PATH = "/data/data/com.example.websocketclient/files/devices.txt"; // Update the path accordingly
+    private static String cameraIp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.imageRendere);
+
+        Log.d(TAG, "hello");
+
+        readFileContents(); // Read the contents of the file
         createWebSocketClient();
     }
 
@@ -45,29 +54,24 @@ public class MainActivity extends AppCompatActivity {
             retryTimer = null; // Nullify to release the reference
         }
         isConnected = false; // Mark as disconnected
-//        Log.d(TAG.getName(), "WebSocket connection closed and resources released.");
     }
-
 
     @Override
     protected void onDestroy() {
         disconnectWebSocket();
         super.onDestroy();
-
     }
-
 
     private void createWebSocketClient() {
         URI uri;
         try {
-            uri = new URI("ws://192.168.33.223:80/");
-//            uri = new URI("ws://esp32camera.local:80/");
+            String ip = "ws://" + cameraIp + ":80/";
+          uri = new URI(ip);
+            System.out.println(ip);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
         }
-
-
 
         webSocketClient = new WebSocketClient(uri) {
             @Override
@@ -113,14 +117,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onException(Exception e) {
                 Log.e(TAG, "onException: ", e);
-                // Schedule reconnection attempt
                 retryConnection();
             }
 
             @Override
             public void onCloseReceived() {
                 Log.d(TAG, "onCloseReceived");
-                // Schedule reconnection attempt
                 retryConnection();
             }
         };
@@ -146,4 +148,21 @@ public class MainActivity extends AppCompatActivity {
             }, RETRY_DELAY_MS);
         }
     }
+
+    private void readFileContents() {
+        try {
+            InputStream inputStream = getAssets().open("devices.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            Log.d(TAG, "file is being read ");
+            while ((line = reader.readLine()) != null) {
+                Log.d(TAG, line); // Log each line to the console
+              cameraIp = line;
+            }
+            reader.close(); // Close the reader
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading file from assets", e);
+        }
+    }
+
 }
