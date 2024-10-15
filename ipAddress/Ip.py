@@ -40,6 +40,8 @@ def get_connected_devices():
         with open('../app/src/main/assets/devices.txt', 'w') as file:
             if connected_devices:
                 for device in connected_devices:
+#                     file.write(f"Device Name: {device[0]}, IP Address: {device[1]}, MAC Address: {device[2]}\n")
+
                     if (device[2]=="08:f9:e0:f6:1c:ec"):
 #                         file.write(f"Device Name: {device[0]}, IP Address: {device[1]}, MAC Address: {device[2]}\n")
                           file.write(f"{device[1]}\n")

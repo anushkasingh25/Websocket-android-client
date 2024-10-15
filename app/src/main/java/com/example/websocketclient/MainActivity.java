@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         URI uri;
         try {
             String ip = "ws://" + cameraIp + ":80/";
+//            String ip = "ws://192.168.150.25:80/";
           uri = new URI(ip);
             System.out.println(ip);
         } catch (URISyntaxException e) {
