@@ -65,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
     private void createWebSocketClient() {
         URI uri;
         try {
-            String ip = "ws://" + cameraIp + ":80/";
-//            String ip = "ws://192.168.150.25:80/";
+//            String ip = "ws://" + cameraIp + ":8765/";
+            String ip = "ws://192.168.22.149:8765/";
+//            String ip = "ws://192.168.1.139:8765/";
           uri = new URI(ip);
             System.out.println(ip);
         } catch (URISyntaxException e) {
